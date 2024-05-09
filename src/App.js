@@ -3,6 +3,9 @@ import avatar from './images/bozai.png'
 import { useState } from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
+import { v4 as uuidv4 } from 'uuid';
+import { dayjs } from 'dayjs'
+import { useRef } from 'react'
 
 /**
  * 评论列表的渲染和操作
@@ -15,7 +18,7 @@ import classNames from 'classnames'
 const defaultList = [
   {
     // 评论id
-    rpid: 3,
+    rpid: 22,
     // 用户信息
     user: {
       uid: '13258165',
@@ -29,7 +32,7 @@ const defaultList = [
     like: 88,
   },
   {
-    rpid: 2,
+    rpid: 33,
     user: {
       uid: '36080105',
       avatar: '',
@@ -40,7 +43,7 @@ const defaultList = [
     like: 88,
   },
   {
-    rpid: 1,
+    rpid: 77,
     user: {
       uid: '30009257',
       avatar,
@@ -78,7 +81,7 @@ const tabs = [
 
 
 const App = () => {
-  const [commentList, setCommentList] = useState(_.orderBy(defaultList), 'like', 'desc')
+  const [commentList, setCommentList] = useState(defaultList))
   const handeDel = (id) => {
     console.log(id)
     setCommentList(commentList.filter(item => item.rpid !==id ))
@@ -92,6 +95,31 @@ const App = () => {
     } else {
       setCommentList(_.orderBy(commentList, 'ctime', 'desc'))
     }
+  }
+
+  const [content, setContent] = useState('')
+  const inputRef = useRef(null)
+  const handlePublish = () => {
+    setCommentList([
+      ...commentList,
+      {
+        rpid: uuidv4(),
+        user: {
+          uid: '30009257',
+          avatar,
+          uname: '黑马前端',
+        },
+        content: content,
+        ctime: dayjs(new Date()).format('MM-DD hh:mm'),
+        like: 66,
+      }
+    ])
+
+    // clear the input
+    setContent(' ')
+
+    // focus the input
+    inputRef.current.focus()
   }
 
 
@@ -129,12 +157,15 @@ const App = () => {
           <div className="reply-box-wrap">
             {/* 评论框 */}
             <textarea
+              ref = {inputRef}
+              value = {content}
+              onChange={(e) => setContent(e.target.value)}
               className="reply-box-textarea"
               placeholder="发一条友善的评论"
             />
             {/* 发布按钮 */}
             <div className="reply-box-send">
-              <div className="send-text">发布</div>
+              <div className="send-text" onClick={handlePublish}>发布</div>
             </div>
           </div>
         </div>
@@ -142,7 +173,7 @@ const App = () => {
         <div className="reply-list">
           {/* 评论项 */}
           {commentList.map(item => (
-            <div key={item.rpid}className="reply-item">
+            <div key={item.rpid} className="reply-item">
             {/* 头像 */}
             <div className="root-reply-avatar">
               <div className="bili-avatar">
